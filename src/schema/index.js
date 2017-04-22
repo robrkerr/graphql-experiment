@@ -1,0 +1,3 @@
+"use strict";
+exports.__esModule = true;
+exports.schema = "\n  type Author {\n    id: Int! # the ! means that every author object _must_ have an id\n    firstName: String\n    lastName: String\n    posts: [Post] # the list of Posts by this author\n  }\n  type Post {\n    id: Int!\n    title: String\n    author: Author\n    votes: Int\n  }\n  # the schema allows the following query:\n  type Query {\n    posts: [Post]\n    author(id: Int!): Author\n  }\n  # this schema allows the following mutation:\n  type Mutation {\n    upvotePost (\n      postId: Int!\n    ): Post\n  }\n  type Subscription {\n    postUpvoted: Post\n  }\n";
