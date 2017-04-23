@@ -1,4 +1,4 @@
-const umzug = require('./umzug.js');
+const umzug = require('../db/umzug/umzug.js');
 
 umzug.up().then(function() {
   console.log('Migration successful');
