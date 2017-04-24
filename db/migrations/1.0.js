@@ -1,4 +1,4 @@
-const pg = require('../../src/db');
+const pg = require('../../build/db');
 
 module.exports = {
   up: function () {

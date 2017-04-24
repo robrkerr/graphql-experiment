@@ -1,3 +1,0 @@
-"use strict";
-exports.__esModule = true;
-exports.schema = "\n  type Speaker {\n    id: String! # the ! means that every author object _must_ have an id\n    name: String\n    submissions: [Submission] # the list of Submissions made by this speaker\n  }\n  type Submission {\n    id: String!\n    name: String\n    speaker: Speaker\n  }\n  # the schema allows the following query:\n  type Query {\n    submissions: [Submission]\n    speakers: [Speaker]\n    speaker(id: String!): Speaker\n  }\n  # this schema allows the following mutation:\n  type Mutation {\n    createSpeaker (\n      name: String!\n    ): Speaker\n    createSubmission (\n      name: String!\n      speaker_id: String!\n    ): Submission\n  }\n";
