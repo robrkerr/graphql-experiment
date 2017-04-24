@@ -1,44 +1,41 @@
 "use strict";
 exports.__esModule = true;
-var lodash_1 = require("lodash");
-var authors = [
-    { id: 1, firstName: 'Tom', lastName: 'Coleman' },
-    { id: 2, firstName: 'Sashko', lastName: 'Stubailo' },
-];
-var posts = [
-    { id: 1, authorId: 1, title: 'Introduction to GraphQL', votes: 2 },
-    { id: 2, authorId: 2, title: 'GraphQL Rocks', votes: 3 },
-    { id: 3, authorId: 2, title: 'Advanced GraphQL', votes: 1 },
-];
+var pg = require("../db");
 exports.resolvers = {
     Query: {
-        posts: function () {
-            return posts;
+        submissions: function () {
+            return pg.query('SELECT * FROM submissions');
         },
-        author: function (_, _a) {
+        speakers: function () {
+            return pg.query('SELECT * FROM speakers');
+        },
+        speaker: function (_, _a) {
             var id = _a.id;
-            return lodash_1.find(authors, { id: id });
+            return pg.query('SELECT * FROM speakers WHERE id = $1', [id])
+                .then(function (rows) { return rows[0]; });
         }
     },
     Mutation: {
-        upvotePost: function (_, _a) {
-            var postId = _a.postId;
-            var post = lodash_1.find(posts, { id: postId });
-            if (!post) {
-                throw new Error("Couldn't find post with id " + postId);
-            }
-            post.votes += 1;
-            return post;
+        createSpeaker: function (_, _a) {
+            var name = _a.name;
+            return pg.query('INSERT INTO speakers (name) VALUES ($1) RETURNING *', [name])
+                .then(function (rows) { return rows[0]; });
+        },
+        createSubmission: function (_, _a) {
+            var name = _a.name, speaker_id = _a.speaker_id;
+            return pg.query('INSERT INTO submissions (name, speaker_id) VALUES ($1, $2) RETURNING *', [name, speaker_id])
+                .then(function (rows) { return rows[0]; });
         }
     },
-    Author: {
-        posts: function (author) {
-            return lodash_1.filter(posts, { authorId: author.id });
+    Speaker: {
+        submissions: function (speaker) {
+            return pg.query('SELECT * FROM submissions WHERE speaker_id = $1', [speaker.id]);
         }
     },
-    Post: {
-        author: function (post) {
-            return lodash_1.find(authors, { id: post.authorId });
+    Submission: {
+        speaker: function (submission) {
+            return pg.query('SELECT * FROM speakers WHERE id = $1', [submission.speaker_id])
+                .then(function (rows) { return rows[0]; });
         }
     }
 };

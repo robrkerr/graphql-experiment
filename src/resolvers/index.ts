@@ -1,43 +1,38 @@
 import { find, filter } from 'lodash'
-
-const authors = [
-  { id: 1, firstName: 'Tom', lastName: 'Coleman' },
-  { id: 2, firstName: 'Sashko', lastName: 'Stubailo' },
-]
-
-const posts = [
-  { id: 1, authorId: 1, title: 'Introduction to GraphQL', votes: 2 },
-  { id: 2, authorId: 2, title: 'GraphQL Rocks', votes: 3 },
-  { id: 3, authorId: 2, title: 'Advanced GraphQL', votes: 1 },
-]
+import * as pg from '../db'
 
 export const resolvers = {
   Query: {
-    posts() {
-      return posts
+    submissions() {
+      return pg.query('SELECT * FROM submissions')
     },
-    author(_, { id }) {
-      return find(authors, { id: id })
+    speakers() {
+      return pg.query('SELECT * FROM speakers')
+    },
+    speaker(_, { id }) {
+      return pg.query('SELECT * FROM speakers WHERE id = $1', [id])
+        .then((rows) => rows[0])
     },
   },
   Mutation: {
-    upvotePost(_, { postId }) {
-      const post = find(posts, { id: postId })
-      if (!post) {
-        throw new Error(`Couldn't find post with id ${postId}`)
-      }
-      post.votes += 1
-      return post
+    createSpeaker(_, { name }) {
+      return pg.query('INSERT INTO speakers (name) VALUES ($1) RETURNING *', [name])
+        .then((rows) => rows[0])
+    },
+    createSubmission(_, { name, speaker_id }) {
+      return pg.query('INSERT INTO submissions (name, speaker_id) VALUES ($1, $2) RETURNING *', [name, speaker_id])
+        .then((rows) => rows[0])
     },
   },
-  Author: {
-    posts(author) {
-      return filter(posts, { authorId: author.id })
+  Speaker: {
+    submissions(speaker) {
+      return pg.query('SELECT * FROM submissions WHERE speaker_id = $1', [speaker.id])
     },
   },
-  Post: {
-    author(post) {
-      return find(authors, { id: post.authorId })
+  Submission: {
+    speaker(submission) {
+      return pg.query('SELECT * FROM speakers WHERE id = $1', [submission.speaker_id])
+        .then((rows) => rows[0])
     },
   },
 }

@@ -1,10 +1,17 @@
-const pg = require('../db.js');
+const pg = require('../../src/db');
 
 module.exports = {
   up: function () {
     return pg.query(`
+      CREATE EXTENSION "uuid-ossp";
       CREATE TABLE submissions (
-        name     text
+        id           uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+        name         text,
+        speaker_id    uuid
+      );
+      CREATE TABLE speakers (
+        id           uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+        name         text
       );
     `).then(function() {
       return pg.end();
@@ -13,6 +20,8 @@ module.exports = {
   down: function () {
     return pg.query(`
       DROP TABLE submissions;
+      DROP TABLE speakers;
+      DROP EXTENSION "uuid-ossp";
     `).then(function() {
       return pg.end();
     });
