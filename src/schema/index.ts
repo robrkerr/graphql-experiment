@@ -1,4 +1,17 @@
 
+export interface Speaker {
+  id: string;
+  name?: string;
+  submissions?: Submission[];
+}
+
+export interface Submission {
+  id: string;
+  name?: string;
+  speaker?: Speaker;
+  speaker_id?: string;
+}
+
 export const schema = `
   type Speaker {
     id: String! # the ! means that every author object _must_ have an id
